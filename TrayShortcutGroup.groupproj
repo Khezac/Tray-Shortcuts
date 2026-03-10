@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{6092A7E8-3AD9-4183-AE07-9F24B98A5880}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="app\TrayShortcuts.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="tst\TesteTrayShortcuts.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="TrayShortcuts">
+        <MSBuild Projects="app\TrayShortcuts.dproj"/>
+    </Target>
+    <Target Name="TrayShortcuts:Clean">
+        <MSBuild Projects="app\TrayShortcuts.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TrayShortcuts:Make">
+        <MSBuild Projects="app\TrayShortcuts.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="TesteTrayShortcuts">
+        <MSBuild Projects="tst\TesteTrayShortcuts.dproj"/>
+    </Target>
+    <Target Name="TesteTrayShortcuts:Clean">
+        <MSBuild Projects="tst\TesteTrayShortcuts.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TesteTrayShortcuts:Make">
+        <MSBuild Projects="tst\TesteTrayShortcuts.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="TrayShortcuts;TesteTrayShortcuts"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="TrayShortcuts:Clean;TesteTrayShortcuts:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="TrayShortcuts:Make;TesteTrayShortcuts:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
