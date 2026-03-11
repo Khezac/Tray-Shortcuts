@@ -5,7 +5,8 @@ interface
 uses
   System.Classes, System.IOUtils, ShellAPI, Winapi.Windows, Vcl.Graphics,
   Winapi.ShlObj, Winapi.ActiveX, System.SysUtils, Vcl.ExtCtrls, Vcl.Controls,
-  uDiretorioModel, Vcl.Menus, uArquivoModel, System.Generics.Collections;
+  Dialogs, uDiretorioModel, Vcl.Menus, uArquivoModel,
+  System.Generics.Collections;
 
 type
   IArquivoController = interface
@@ -16,12 +17,16 @@ type
       Altura: Integer): TBitMap;
 
     procedure AbrirArquivo(NomeArquivo: string);
+    procedure MenuItemClick(Sender: TObject);
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
     procedure PreencherImageList(var ListaDeIcones: TImageList);
   end;
 
   TArquivoController = class(TInterfacedObject, IArquivoController)
+  private
+    procedure FinalizarAplicacao(Sender: TObject);
   public
+    FDiretorioGeral: string;
     FListaArquivos: TList<IArquivo>;
 
     function ListarArquivos(Diretorio: string): TList<IArquivo>;
@@ -30,6 +35,7 @@ type
       Altura: Integer): TBitMap;
 
     procedure AbrirArquivo(NomeArquivo: string);
+    procedure MenuItemClick(Sender: TObject);
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
     procedure PreencherImageList(var ListaDeIcones: TImageList);
   end;
@@ -40,7 +46,7 @@ implementation
 
 procedure TArquivoController.AbrirArquivo(NomeArquivo: string);
 begin
-  ShellExecute(0, 'open', PWideChar(NomeArquivo), '', PWideChar(NomeArquivo), SW_HIDE);
+  ShellExecute(0, 'open', PWideChar(FDiretorioGeral + NomeArquivo), '', PWideChar(NomeArquivo), SW_HIDE);
 end;
 
 function TArquivoController.ListarArquivos(Diretorio: string): TList<IArquivo>;
@@ -50,6 +56,8 @@ var
   NovoIcone: TIcon;
 begin
   Result := TList<IArquivo>.Create();
+
+  FDiretorioGeral := Diretorio;
 
   ListaArquivos := TDiretorio.ListarArquivos(Diretorio);
   for var ArquivoString in ListaArquivos do
@@ -63,6 +71,11 @@ begin
 
       Result.Add(Arquivo);
     end;
+end;
+
+procedure TArquivoController.MenuItemClick(Sender: TObject);
+begin
+  AbrirArquivo(StringReplace(TMenuItem(Sender).Caption, '&', '', [rfReplaceAll]));
 end;
 
 function TArquivoController.PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON;
@@ -111,6 +124,7 @@ var
   Item: TMenuItem;
 begin
   FListaArquivos := ListarArquivos(DiretorioJogos);
+  FDiretorioGeral := DiretorioJogos;
 
   for var Jogo in FListaArquivos do
     begin
@@ -118,8 +132,20 @@ begin
 
       Item.Caption := Jogo.Nome;
       Item.Bitmap := Jogo.Icone;
+      Item.OnClick := MenuItemClick;
       Menu.Items.Add(Item);
     end;
+
+  Item := TMenuItem.Create(Menu);
+  Item.Caption := 'Fechar';
+  Item.OnClick := FinalizarAplicacao;
+  Menu.Items.Add(Item);
+end;
+
+procedure TArquivoController.FinalizarAplicacao(Sender: TObject);
+begin
+  if MessageDlg('Deseja mesmo sair?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+    Halt;
 end;
 
 function TArquivoController.RedimensionarIcone(const Origem: TIcon; Largura, Altura: Integer): TBitMap;

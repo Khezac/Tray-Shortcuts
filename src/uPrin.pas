@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, ShellAPI, System.IOUtils, uArquivoController, Vcl.Menus,
-  System.ImageList, Vcl.ImgList;
+  System.ImageList, Vcl.ImgList, Registry;
 
 type
   TfrmPrincipal = class(TForm)
@@ -14,9 +14,8 @@ type
     TrayIcon1: TTrayIcon;
     Image1: TImage;
     imlIcones: TImageList;
-    procedure Shape1MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
+    procedure pmJogosPopup(Sender: TObject);
   private
     ArquivosController: IArquivoController;
     ListaDeJogos: TStringList;
@@ -24,6 +23,7 @@ type
     procedure PreencherMenu();
     procedure PreencherImageList();
     procedure LinkarImagemAoJogo();
+    procedure IniciarComWindows(pNomeDoApp, pDiretorioApp: string; pSomenteUmaVez: Boolean);
   end;
 
 var
@@ -41,12 +41,21 @@ begin
   PreencherMenu();
   PreencherImageList();
   LinkarImagemAoJogo();
+
+  IniciarComWindows(Application.Title, Application.ExeName, False);
 end;
 
 procedure TfrmPrincipal.LinkarImagemAoJogo;
 begin
   for var I := 0 to Pred(pmJogos.Items.Count) do
     pmJogos.Items[I].ImageIndex := I;
+end;
+
+procedure TfrmPrincipal.pmJogosPopup(Sender: TObject);
+begin
+  Self.BringToFront();
+  Self.Left := Mouse.CursorPos.X;
+  Self.Top := Mouse.CursorPos.Y;
 end;
 
 procedure TfrmPrincipal.PreencherImageList;
@@ -59,10 +68,26 @@ begin
   ArquivosController.PreencherMenu(PASTA_RAIZ_JOGOS, pmJogos);
 end;
 
-procedure TfrmPrincipal.Shape1MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TfrmPrincipal.IniciarComWindows(pNomeDoApp, pDiretorioApp: string;
+  pSomenteUmaVez: Boolean);
 begin
-  ArquivosController.AbrirArquivo(ListaDeJogos[0]);
+  const CAMINHO_REGISTRO = 'Software\Microsoft\Windows\CurrentVersion\Run';
+  var reg := TRegistry.Create();
+  try
+    reg.RootKey := HKEY_CURRENT_USER;
+
+    if Reg.OpenKey(CAMINHO_REGISTRO, True) then
+      begin
+        if pSomenteUmaVez then
+          Reg.WriteString(pNomeDoApp, '"' + pDiretorioApp + '"')
+        else
+          Reg.DeleteValue(pNomeDoApp);
+
+        Reg.CloseKey;
+      end;
+  finally
+    reg.Free;
+  end;
 end;
 
 end.
