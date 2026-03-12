@@ -129,6 +129,8 @@
         <DCCReference Include="..\src\Controllers\uArquivoController.pas"/>
         <DCCReference Include="..\src\Models\uArquivoModel.pas"/>
         <DCCReference Include="..\src\Models\uDiretorioModel.pas"/>
+        <DCCReference Include="..\src\Infra\uInicializacao.pas"/>
+        <DCCReference Include="..\src\Service\uShellService.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

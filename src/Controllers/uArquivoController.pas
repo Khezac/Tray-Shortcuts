@@ -4,68 +4,55 @@ interface
 
 uses
   System.Classes, System.IOUtils, ShellAPI, Winapi.Windows, Vcl.Graphics,
-  Winapi.ShlObj, Winapi.ActiveX, System.SysUtils, Vcl.ExtCtrls, Vcl.Controls,
+  System.SysUtils, Vcl.ExtCtrls, Vcl.Controls,
   Dialogs, uDiretorioModel, Vcl.Menus, uArquivoModel,
-  System.Generics.Collections;
+  System.Generics.Collections, System.UITypes;
 
 type
   IArquivoController = interface
     ['{5C99D15A-9DF2-4841-82DB-2160636E17AA}']
     function ListarArquivos(Diretorio: string): TList<IArquivo>;
-    function PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON;
     function RedimensionarIcone(const Origem: TIcon; Largura,
       Altura: Integer): TBitMap;
 
-    procedure AbrirArquivo(NomeArquivo: string);
     procedure MenuItemClick(Sender: TObject);
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
-    procedure PreencherImageList(var ListaDeIcones: TImageList);
   end;
 
   TArquivoController = class(TInterfacedObject, IArquivoController)
   private
-    procedure FinalizarAplicacao(Sender: TObject);
-  public
     FDiretorioGeral: string;
-    FListaArquivos: TList<IArquivo>;
 
-    function ListarArquivos(Diretorio: string): TList<IArquivo>;
-    function PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON;
+    procedure FinalizarAplicacao(Sender: TObject);
+    procedure MenuItemClick(Sender: TObject);
+
     function RedimensionarIcone(const Origem: TIcon; Largura,
       Altura: Integer): TBitMap;
-
-    procedure AbrirArquivo(NomeArquivo: string);
-    procedure MenuItemClick(Sender: TObject);
+    function ListarArquivos(Diretorio: string): TList<IArquivo>;
+  public
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
-    procedure PreencherImageList(var ListaDeIcones: TImageList);
   end;
 
 implementation
 
 { TArquivoController }
 
-procedure TArquivoController.AbrirArquivo(NomeArquivo: string);
-begin
-  ShellExecute(0, 'open', PWideChar(FDiretorioGeral + NomeArquivo), '', PWideChar(NomeArquivo), SW_HIDE);
-end;
+uses
+  uShellService;
 
 function TArquivoController.ListarArquivos(Diretorio: string): TList<IArquivo>;
-var
-  ListaArquivos: TStringList;
-  Arquivo: IArquivo;
-  NovoIcone: TIcon;
 begin
   Result := TList<IArquivo>.Create();
 
   FDiretorioGeral := Diretorio;
 
-  ListaArquivos := TDiretorio.ListarArquivos(Diretorio);
+  var ListaArquivos := TDiretorio.ListarArquivos(Diretorio);
   for var ArquivoString in ListaArquivos do
     begin
-      NovoIcone := TIcon.Create();
-      NovoIcone.Handle := PegarIconeDoArquivo(ArquivoString);
+      var NovoIcone := TIcon.Create();
+      NovoIcone.Handle := TShellService.PegarIconeDoArquivo(ArquivoString);
 
-      Arquivo := TArquivo.Create();
+      var Arquivo := TArquivo.Create();
       Arquivo.Diretorio := ArquivoString;
       Arquivo.Icone := RedimensionarIcone(NovoIcone, 16, 16);
 
@@ -75,47 +62,7 @@ end;
 
 procedure TArquivoController.MenuItemClick(Sender: TObject);
 begin
-  AbrirArquivo(StringReplace(TMenuItem(Sender).Caption, '&', '', [rfReplaceAll]));
-end;
-
-function TArquivoController.PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON;
-var ShellLink: IShellLink;
-  PersistFile: IPersistFile;
-  IconFile: array[0..MAX_PATH] of Char;
-  IconIndex: Integer;
-  WPath: WideString;
-  hLarge, hSmall: HICON;
-begin
-  Result := 0;
-
-  if not FileExists(pCaminhoAtalho) then
-    Exit;
-
-  if CoCreateInstance(CLSID_ShellLink, nil, CLSCTX_INPROC_SERVER, IID_IShellLink, ShellLink) = S_OK then
-    begin
-      PersistFile := ShellLink as IPersistFile;
-      WPath := pCaminhoAtalho;
-
-      if PersistFile.Load(PWideChar(WPath), STGM_READ) = S_OK then
-        begin
-          if ShellLink.GetIconLocation(IconFile, MAX_PATH, IconIndex) = S_OK then
-            begin
-              if ExtractIconEx(IconFile, IconIndex, hLarge, hSmall, 1) > 0 then
-                begin
-                  Result := hLarge;
-
-                  if hSmall <> 0 then
-                    DestroyIcon(hSmall);
-                end;
-            end;
-        end;
-    end;
-end;
-
-procedure TArquivoController.PreencherImageList(var ListaDeIcones: TImageList);
-begin
-  for var Jogo in FListaArquivos do
-    ListaDeIcones.Add(Jogo.Icone, nil);
+  TShellService.AbrirArquivo(FDiretorioGeral, StringReplace(TMenuItem(Sender).Caption, '&', '', [rfReplaceAll]));
 end;
 
 procedure TArquivoController.PreencherMenu(DiretorioJogos: string;
@@ -123,18 +70,21 @@ procedure TArquivoController.PreencherMenu(DiretorioJogos: string;
 var
   Item: TMenuItem;
 begin
-  FListaArquivos := ListarArquivos(DiretorioJogos);
   FDiretorioGeral := DiretorioJogos;
+  var lListaArquivos := ListarArquivos(DiretorioJogos);
+  try
+    for var Jogo in lListaArquivos do
+      begin
+        Item := TMenuItem.Create(Menu);
 
-  for var Jogo in FListaArquivos do
-    begin
-      Item := TMenuItem.Create(Menu);
-
-      Item.Caption := Jogo.Nome;
-      Item.Bitmap := Jogo.Icone;
-      Item.OnClick := MenuItemClick;
-      Menu.Items.Add(Item);
-    end;
+        Item.Caption := Jogo.Nome;
+        Item.Bitmap := Jogo.Icone;
+        Item.OnClick := MenuItemClick;
+        Menu.Items.Add(Item);
+      end;
+  finally
+    lListaArquivos.Free();
+  end;
 
   Item := TMenuItem.Create(Menu);
   Item.Caption := 'Fechar';
@@ -152,14 +102,14 @@ function TArquivoController.RedimensionarIcone(const Origem: TIcon; Largura, Alt
 begin
   Result := TBitmap.Create;
 
-    Result.PixelFormat := pf32bit;
-    Result.SetSize(Largura, Altura);
+  Result.PixelFormat := pf32bit;
+  Result.SetSize(Largura, Altura);
 
-    Result.Canvas.Brush.Color := clNone;
-    Result.Canvas.FillRect(Rect(0, 0, Largura, Altura));
+  Result.Canvas.Brush.Color := clNone;
+  Result.Canvas.FillRect(Rect(0, 0, Largura, Altura));
 
-    DrawIconEx(Result.Canvas.Handle, 0, 0, Origem.Handle, Largura, Altura, 0, 0, DI_NORMAL);
-
+  DrawIconEx(Result.Canvas.Handle, 0, 0, Origem.Handle, Largura, Altura, 0, 0, DI_NORMAL);
 end;
 
 end.
+
