@@ -62,7 +62,7 @@ end;
 
 procedure TArquivoController.MenuItemClick(Sender: TObject);
 begin
-  TShellService.AbrirArquivo(FDiretorioGeral, StringReplace(TMenuItem(Sender).Caption, '&', '', [rfReplaceAll]));
+  TShellService.AbrirArquivo(StringReplace(TMenuItem(Sender).Hint, '&', '', [rfReplaceAll]));
 end;
 
 procedure TArquivoController.PreencherMenu(DiretorioJogos: string;
@@ -79,6 +79,7 @@ begin
 
         Item.Caption := Jogo.Nome;
         Item.Bitmap := Jogo.Icone;
+        Item.Hint := Jogo.Diretorio;
         Item.OnClick := MenuItemClick;
         Menu.Items.Add(Item);
       end;

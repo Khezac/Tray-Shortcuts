@@ -8,7 +8,7 @@ uses
 type
   TShellService = class
   public
-    class procedure AbrirArquivo(Diretorio, NomeArquivo: string);
+    class procedure AbrirArquivo(NomeArquivo: string);
     class function PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON; static;
   end;
 
@@ -19,9 +19,9 @@ implementation
 uses
   ShellAPI, Winapi.ShlObj, Winapi.ActiveX, System.SysUtils;
 
-class procedure TShellService.AbrirArquivo(Diretorio, NomeArquivo: string);
+class procedure TShellService.AbrirArquivo(NomeArquivo: string);
 begin
-  ShellExecute(0, 'open', PWideChar(Diretorio + NomeArquivo), '', PWideChar(NomeArquivo), SW_HIDE);
+  ShellExecute(0, 'open', PWideChar(NomeArquivo), nil, nil, SW_NORMAL);
 end;
 
 class function TShellService.PegarIconeDoArquivo(const pCaminhoAtalho: string): HICON;
