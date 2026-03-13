@@ -7,7 +7,7 @@ uses
 
 type
   [TestFixture]
-  TTesteIcones = class
+  TTesteArquivoController = class
   private
     FArquivoController: IArquivoController;
   public
@@ -22,21 +22,21 @@ type
 
 implementation
 
-{ TTesteIcones }
+{ TTesteArquivoController }
 
-procedure TTesteIcones.DeveListarArquivos;
+procedure TTesteArquivoController.DeveListarArquivos;
 begin
-  var DIRETORIO := 'C:\';
+  const DIRETORIO = 'C:\';
   Assert.IsTrue(FArquivoController.ListarArquivos(DIRETORIO).Count > 0,
     'Não foi possível listar os arquivos do diretório: ' + DIRETORIO);
 end;
 
-procedure TTesteIcones.Setup;
+procedure TTesteArquivoController.Setup;
 begin
   FArquivoController := TArquivoController.Create();
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TTesteIcones);
+  TDUnitX.RegisterTestFixture(TTesteArquivoController);
 
 end.

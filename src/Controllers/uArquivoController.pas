@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.IOUtils, ShellAPI, Winapi.Windows, Vcl.Graphics,
   System.SysUtils, Vcl.ExtCtrls, Vcl.Controls,
-  Dialogs, uDiretorioModel, Vcl.Menus, uArquivoModel,
+  Vcl.Dialogs, uDiretorioModel, Vcl.Menus, uArquivoModel,
   System.Generics.Collections, System.UITypes;
 
 type

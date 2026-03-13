@@ -3,13 +3,14 @@ unit uInicializacao;
 interface
 
 uses
-  Registry, Winapi.Windows, Vcl.Forms;
+  Registry, Winapi.Windows, Vcl.Forms, Vcl.Dialogs, System.Classes;
 
 type
   TInicializacaoComSistema = class
   private
     class procedure IniciarComSistema(pIniciarComSistema: Boolean);
   public
+    class function InicializacaoAtivada: Boolean;
     class procedure Ativar;
     class procedure Desativar;
   end;
@@ -28,24 +29,46 @@ begin
   IniciarComSistema(False);
 end;
 
+class function TInicializacaoComSistema.InicializacaoAtivada: Boolean;
+begin
+  Result := False;
+  const CAMINHO_REGISTRO = 'Software\Microsoft\Windows\CurrentVersion\Run';
+  var Registro := TRegistry.Create();
+  try
+    Registro.RootKey := HKEY_CURRENT_USER;
+
+    if Registro.OpenKey(CAMINHO_REGISTRO, False) then
+      Result := Registro.ValueExists(Application.Title);
+  finally
+    Registro.CloseKey;
+    Registro.Free;
+  end;
+end;
+
 class procedure TInicializacaoComSistema.IniciarComSistema(pIniciarComSistema: Boolean);
 begin
   const CAMINHO_REGISTRO = 'Software\Microsoft\Windows\CurrentVersion\Run';
-  var reg := TRegistry.Create();
+  var Registro := TRegistry.Create();
   try
-    reg.RootKey := HKEY_CURRENT_USER;
+    Registro.RootKey := HKEY_CURRENT_USER;
 
-    if Reg.OpenKey(CAMINHO_REGISTRO, True) then
+    if Registro.OpenKey(CAMINHO_REGISTRO, True) then
       begin
         if pIniciarComSistema then
-          Reg.WriteString(Application.Title, '"' + Application.ExeName + '"')
+          begin
+            if not Registro.ValueExists(Application.Title) then
+              begin
+                Registro.WriteString(Application.Title, '"' + Application.ExeName + '"')
+              end;
+          end
         else
-          Reg.DeleteValue(Application.Title);
+          if Registro.ValueExists(Application.Title) then
+            Registro.DeleteValue(Application.Title);
 
-        Reg.CloseKey;
+        Registro.CloseKey;
       end;
   finally
-    reg.Free;
+    Registro.Free;
   end;
 end;
 
