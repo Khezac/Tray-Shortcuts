@@ -3,7 +3,7 @@ unit uTesteArquivoController;
 interface
 
 uses
-  DUnitX.TestFramework, uArquivoController, System.SysUtils;
+  DUnitX.TestFramework, uArquivoController, System.SysUtils, Vcl.Menus;
 
 type
   [TestFixture]
@@ -26,9 +26,16 @@ implementation
 
 procedure TTesteArquivoController.DeveListarArquivos;
 begin
+  var Menu := TPopupMenu.Create(nil);
   const DIRETORIO = 'C:\';
-  Assert.IsTrue(FArquivoController.ListarArquivos(DIRETORIO).Count > 0,
-    'Não foi possível listar os arquivos do diretório: ' + DIRETORIO);
+
+  try
+    FArquivoController.PreencherMenu(DIRETORIO, Menu);
+    Assert.IsTrue(Menu.Items.Count > 0,
+      'Não foi possível preencher o menu com os itens do diretório: ' + DIRETORIO);
+  finally
+    Menu.Free();
+  end;
 end;
 
 procedure TTesteArquivoController.Setup;
