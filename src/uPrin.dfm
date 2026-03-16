@@ -3,7 +3,7 @@ object frmPrincipal: TfrmPrincipal
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Games Bar'
+  Caption = 'TrayShortcuts'
   ClientHeight = 160
   ClientWidth = 305
   Color = clBtnFace

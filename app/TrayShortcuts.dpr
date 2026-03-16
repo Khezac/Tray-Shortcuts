@@ -7,7 +7,9 @@ uses
   uArquivoModel in '..\src\Models\uArquivoModel.pas',
   uDiretorioModel in '..\src\Models\uDiretorioModel.pas',
   uInicializacao in '..\src\Infra\uInicializacao.pas',
-  uShellService in '..\src\Service\uShellService.pas';
+  uShellService in '..\src\Service\uShellService.pas',
+  uIconeService in '..\src\Service\uIconeService.pas',
+  uArquivoService in '..\src\Service\uArquivoService.pas';
 
 {$R *.res}
 
