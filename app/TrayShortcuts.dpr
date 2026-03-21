@@ -9,7 +9,8 @@ uses
   uInicializacao in '..\src\Infra\uInicializacao.pas',
   uShellService in '..\src\Service\uShellService.pas',
   uIconeService in '..\src\Service\uIconeService.pas',
-  uArquivoService in '..\src\Service\uArquivoService.pas';
+  uArquivoService in '..\src\Service\uArquivoService.pas',
+  uEdgePopupView in '..\src\View\uEdgePopupView.pas' {EdgePopup};
 
 {$R *.res}
 
@@ -18,5 +19,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.ShowMainForm := False;
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.CreateForm(TEdgePopup, EdgePopup);
   Application.Run;
 end.

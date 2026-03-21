@@ -15,6 +15,7 @@ object frmPrincipal: TfrmPrincipal
   Position = poDefault
   ShowInTaskBar = True
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   TextHeight = 15
   object Image1: TImage
     Left = 16
@@ -23,8 +24,9 @@ object frmPrincipal: TfrmPrincipal
     Height = 105
   end
   object pmJogos: TPopupMenu
+    AutoPopup = False
     Images = imlIcones
-    OnPopup = pmJogosPopup
+    OnClose = pmJogosClose
     Left = 160
     Top = 16
   end
@@ -164,8 +166,9 @@ object frmPrincipal: TfrmPrincipal
       FE301C3FFC381E3FFC781E03C0781F0180F81F0180F81F0000F81F0000F81801
       8018188181181003C008001FFC000003C0000047C0008087E101808FF101C000
       0003E0000007F800001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-    PopupMenu = pmJogos
     Visible = True
+    OnDblClick = TrayIcon1DblClick
+    OnMouseDown = TrayIcon1MouseDown
     Left = 160
     Top = 80
   end
