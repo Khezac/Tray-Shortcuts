@@ -3,11 +3,11 @@ unit uTesteArquivoController;
 interface
 
 uses
-  DUnitX.TestFramework, uArquivoController, System.SysUtils;
+  DUnitX.TestFramework, uArquivoController, System.SysUtils, Vcl.Menus;
 
 type
   [TestFixture]
-  TTesteIcones = class
+  TTesteArquivoController = class
   private
     FArquivoController: IArquivoController;
   public
@@ -22,21 +22,28 @@ type
 
 implementation
 
-{ TTesteIcones }
+{ TTesteArquivoController }
 
-procedure TTesteIcones.DeveListarArquivos;
+procedure TTesteArquivoController.DeveListarArquivos;
 begin
-  var DIRETORIO := 'C:\';
-  Assert.IsTrue(FArquivoController.ListarArquivos(DIRETORIO).Count > 0,
-    'Não foi possível listar os arquivos do diretório: ' + DIRETORIO);
+  var Menu := TPopupMenu.Create(nil);
+  const DIRETORIO = 'C:\';
+
+  try
+    FArquivoController.PreencherMenu(DIRETORIO, Menu);
+    Assert.IsTrue(Menu.Items.Count > 0,
+      'Não foi possível preencher o menu com os itens do diretório: ' + DIRETORIO);
+  finally
+    Menu.Free();
+  end;
 end;
 
-procedure TTesteIcones.Setup;
+procedure TTesteArquivoController.Setup;
 begin
   FArquivoController := TArquivoController.Create();
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TTesteIcones);
+  TDUnitX.RegisterTestFixture(TTesteArquivoController);
 
 end.

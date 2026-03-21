@@ -3,9 +3,9 @@ object frmPrincipal: TfrmPrincipal
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Games Bar'
-  ClientHeight = 275
-  ClientWidth = 599
+  Caption = 'TrayShortcuts'
+  ClientHeight = 160
+  ClientWidth = 305
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,8 +24,9 @@ object frmPrincipal: TfrmPrincipal
   end
   object pmJogos: TPopupMenu
     Images = imlIcones
-    Left = 296
-    Top = 64
+    OnPopup = pmJogosPopup
+    Left = 160
+    Top = 16
   end
   object TrayIcon1: TTrayIcon
     Icon.Data = {
@@ -165,11 +166,11 @@ object frmPrincipal: TfrmPrincipal
       0003E0000007F800001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     PopupMenu = pmJogos
     Visible = True
-    Left = 296
-    Top = 136
+    Left = 160
+    Top = 80
   end
   object imlIcones: TImageList
-    Left = 384
-    Top = 64
+    Left = 232
+    Top = 16
   end
 end
