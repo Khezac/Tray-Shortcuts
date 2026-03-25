@@ -15,19 +15,15 @@ type
     Image1: TImage;
     imlIcones: TImageList;
     procedure FormCreate(Sender: TObject);
-    procedure pmJogosClose(Sender: TObject);
     procedure TrayIcon1DblClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FecharEdgePopup(X, Y: Integer);
     procedure TrayIcon1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
   private
     EdgePopup: TEdgePopup;
     ArquivosController: IArquivoController;
 
-    procedure PreencherMenu();
-    function ClickForaHorizontal(X: Integer): Boolean;
-    function ClickForaVertical(Y: Integer): Boolean;
+    procedure ConfigurarMouseHook;
   end;
 
   // Hook para capturar clicks do mouse globalmente
@@ -58,60 +54,39 @@ function LowLevelMouseProc(
   wParam: WPARAM;
   lParam: LPARAM
 ): LRESULT; stdcall;
-var
-  Info: PMSLLHOOKSTRUCT;
 begin
-  Result := 0;
+  if nCode = HC_ACTION then
+    begin
+      var Info := PMSLLHOOKSTRUCT(lParam);
 
-  if nCode <> HC_ACTION then
-    Exit;
-
-  Info := PMSLLHOOKSTRUCT(lParam);
-
-  case wParam of
-    WM_LBUTTONDOWN:
-      begin
-        frmPrincipal.FecharEdgePopup(Info.pt.X, Info.pt.Y);
-      end;
-
-    WM_RBUTTONDOWN:
-      begin
-        frmPrincipal.FecharEdgePopup(Info.pt.X, Info.pt.Y);
-      end;
-  end;
+      if (wParam = WM_LBUTTONDOWN) or (wParam = WM_RBUTTONDOWN) then
+        begin
+          if (Assigned(frmPrincipal)) and (Assigned(frmPrincipal.EdgePopup)) then
+            begin
+              PostMessage(
+                frmPrincipal.EdgePopup.Handle,
+                WM_EDGEPOPUP_GLOBALCLICK,
+                Info.pt.X,
+                Info.pt.Y
+              );
+            end;
+        end;
+    end;
 
   Result := CallNextHookEx(MouseHook, nCode, wParam, lParam);
-end;
-
-function TfrmPrincipal.ClickForaHorizontal(X: Integer): Boolean;
-begin
-  Result := (X < EdgePopup.Left) or (X > (EdgePopup.Width + EdgePopup.Left));
-end;
-
-function TfrmPrincipal.ClickForaVertical(Y: Integer): Boolean;
-begin
-  Result := (Y < (EdgePopup.Top + EdgePopup.Height)) or (Y > EdgePopup.Top);
-end;
-
-procedure TfrmPrincipal.FecharEdgePopup(X, Y: Integer);
-begin
-  if ClickForaHorizontal(X) or
-     ClickForaVertical(Y) and
-     EdgePopup.Visible then
-    begin
-      EdgePopup.Hide();
-    end;
 end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   ArquivosController := TArquivoController.Create();
-
-  PreencherMenu();
-  TInicializacaoComSistema.Ativar();
-
   EdgePopup := TEdgePopup.Create(Self);
 
+  ConfigurarMouseHook();
+  TInicializacaoComSistema.Ativar();
+end;
+
+procedure TfrmPrincipal.ConfigurarMouseHook();
+begin
   MouseHook := SetWindowsHookEx(
     WH_MOUSE_LL,
     @LowLevelMouseProc,
@@ -128,16 +103,6 @@ begin
   UnhookWindowsHookEx(MouseHook);
 end;
 
-procedure TfrmPrincipal.pmJogosClose(Sender: TObject);
-begin
-  EdgePopup.Hide();
-end;
-
-procedure TfrmPrincipal.PreencherMenu;
-begin
-  ArquivosController.PreencherMenu(PASTA_RAIZ_JOGOS, pmJogos);
-end;
-
 procedure TfrmPrincipal.TrayIcon1DblClick(Sender: TObject);
 begin
   Halt;
@@ -152,6 +117,9 @@ begin
       EdgePopup.Left := Mouse.CursorPos.X - EdgePopup.Width;
       EdgePopup.Top := Mouse.CursorPos.Y - EdgePopup.Height;
       EdgePopup.BringToFront();
+
+      ArquivosController.PreencherEdgePopup(PASTA_RAIZ_JOGOS, EdgePopup);
+      EdgePopup.Navegar(Format('file:///%s/../../../../src/View/Web/uEdgePopupView.html', [ExtractFilePath(Application.ExeName)]));
     end;
 end;
 

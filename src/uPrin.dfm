@@ -26,7 +26,6 @@ object frmPrincipal: TfrmPrincipal
   object pmJogos: TPopupMenu
     AutoPopup = False
     Images = imlIcones
-    OnClose = pmJogosClose
     Left = 160
     Top = 16
   end

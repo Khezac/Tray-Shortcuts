@@ -10,7 +10,8 @@ uses
   uShellService in '..\src\Service\uShellService.pas',
   uIconeService in '..\src\Service\uIconeService.pas',
   uArquivoService in '..\src\Service\uArquivoService.pas',
-  uEdgePopupView in '..\src\View\uEdgePopupView.pas' {EdgePopup};
+  uEdgePopupView in '..\src\View\uEdgePopupView.pas' {EdgePopup},
+  uArquivoEdgePresenter in '..\src\Presenter\uArquivoEdgePresenter.pas';
 
 {$R *.res}
 

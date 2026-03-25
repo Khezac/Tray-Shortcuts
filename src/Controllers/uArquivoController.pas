@@ -7,7 +7,7 @@ uses
   System.SysUtils, Vcl.ExtCtrls, Vcl.Controls,
   Vcl.Dialogs, uDiretorioModel, Vcl.Menus, uArquivoModel,
   System.Generics.Collections, System.UITypes, uIconeService,
-  uArquivoService;
+  uArquivoService, uEdgePopupView, System.JSON;
 
 type
   IArquivoController = interface
@@ -17,6 +17,7 @@ type
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
     procedure CriarItemFecharApp(Menu: TPopupMenu);
     procedure FinalizarAplicacao(Sender: TObject);
+    procedure PreencherEdgePopup(DiretorioJogos: string; var EdgePopup: TEdgePopup);
   end;
 
   TArquivoController = class(TInterfacedObject, IArquivoController)
@@ -26,6 +27,7 @@ type
     procedure CriarItemFecharApp(Menu: TPopupMenu);
   public
     procedure PreencherMenu(DiretorioJogos: string; var Menu: TPopupMenu);
+    procedure PreencherEdgePopup(DiretorioJogos: string; var EdgePopup: TEdgePopup);
   end;
 
 implementation
@@ -38,6 +40,12 @@ uses
 procedure TArquivoController.MenuItemClick(Sender: TObject);
 begin
   TShellService.AbrirArquivo(StringReplace(TMenuItem(Sender).Hint, '&', '', [rfReplaceAll]));
+end;
+
+procedure TArquivoController.PreencherEdgePopup(DiretorioJogos: string;
+  var EdgePopup: TEdgePopup);
+begin
+  EdgePopup.JsonAplicativos := TArquivoService.PreencherJsonEnvioAplicativos(DiretorioJogos);
 end;
 
 procedure TArquivoController.PreencherMenu(DiretorioJogos: string;
@@ -74,7 +82,7 @@ end;
 
 procedure TArquivoController.FinalizarAplicacao(Sender: TObject);
 begin
-  if MessageDlg('Deseja mesmo sair?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+//  if MessageDlg('Deseja mesmo sair?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
     Halt;
 end;
 

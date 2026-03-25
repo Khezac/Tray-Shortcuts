@@ -3,11 +3,13 @@ unit uArquivoService;
 interface
 
 uses
-  uArquivoModel, System.Generics.Collections, Vcl.Graphics;
+  uArquivoModel, System.Generics.Collections, Vcl.Graphics, System.JSON,
+  uArquivoEdgePresenter;
 
 type
   TArquivoService = class
     class function ListarArquivos(Diretorio: string): TList<IArquivo>;
+    class function PreencherJsonEnvioAplicativos(DiretorioJogos: string): TJsonObject; static;
   end;
 
 implementation
@@ -34,6 +36,17 @@ begin
 
       Result.Add(Arquivo);
     end;
+end;
+
+class function TArquivoService.PreencherJsonEnvioAplicativos(DiretorioJogos: string): TJsonObject;
+begin
+  var ListaArquivos := TList<IArquivo>.Create();
+  try
+    ListaArquivos := TArquivoService.ListarArquivos(DiretorioJogos);
+    Result := TArquivoEdgePresenter.MontarJsonEnvioEdge(ListaArquivos);
+  finally
+    ListaArquivos.Free();
+  end;
 end;
 
 end.

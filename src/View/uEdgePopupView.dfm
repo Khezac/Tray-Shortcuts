@@ -3,8 +3,8 @@ object EdgePopup: TEdgePopup
   Top = 0
   BorderStyle = bsNone
   Caption = 'EdgePopup'
-  ClientHeight = 675
-  ClientWidth = 1093
+  ClientHeight = 366
+  ClientWidth = 230
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,6 +13,6 @@ object EdgePopup: TEdgePopup
   Font.Style = []
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
-  OnDeactivate = FormDeactivate
+  OnDestroy = FormDestroy
   TextHeight = 15
 end
